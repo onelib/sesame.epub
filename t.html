@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Basic ePubJS Example</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <script src="src/lib/promise.min.js"></script>
+        
+        <!-- EPUBJS Renderer -->
+        <script src="src/lib/axios.min.js"></script>
+        <script src="src/epub.js"></script>
+        <!--<script src="dist/epub.js"></script>-->
+        
+        
+        <!--<link rel="stylesheet" href="basic.css">-->
+
+        <style type="text/css">
+            
+            /*body,
+            div {
+                margin: 0;
+                border: 0 none;
+                padding: 0;
+            }*/
+
+            /*
+           
+
+            .wrapper{
+			    padding: 1em
+		       }
+
+		.fullscreen {
+		  position: fixed;
+		  top: 0;
+		  left: 0;
+		  bottom: 0;
+		  right: 0;
+		
+		  background: lime;
+		  max-height:100%;
+
+		}*/
+        html,
+        body,
+        #wrapper,
+        #left,
+        #right {
+            height: 100%;
+            min-height: 100%;
+        }
+
+        #wrapper {
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        #left {
+            background: yellow;
+            float: left;
+            width: 360px; 
+            overflow:auto;
+            overflow-x:hidden;
+        }
+
+        #right {
+            background: grey;
+            overflow: auto; 
+            /*overflow: hidden;*/
+            /*padding: 20px;*/
+        }
+         
+        #view{
+            box-sizing: border-box;
+            
+            /*padding: 50px;*/
+            height: 100%;
+            background-color: gold;
+            border: solid 1px red;
+            /*margin: 1em;*/
+            
+            overflow: hidden;
+            width: 900px; 
+            
+            -webkit-columns: 2 ;
+            -moz-columns: 2 ;
+                columns: 2 ;
+                
+            -webkit-column-gap: 20px;
+            -moz-column-gap: 20px;
+            column-gap: 20px;
+            
+            
+        }   
+		/*.container {
+		  -webkit-columns: 2 360px;
+			 -moz-columns: 2 360px;
+				  columns: 2 360px;
+		  -webkit-column-gap: 22px;
+			 -moz-column-gap: 22px;
+				  column-gap: 22px;
+            margin: 4em;
+		}*/
+        
+        /*.article {
+            overflow: hidden;
+            width: 900px; 
+            -webkit-columns: 2 ;
+            -moz-columns: 2 ;
+                columns: 2 ;
+        -webkit-column-gap: 20px;
+            -moz-column-gap: 20px;
+            column-gap: 20px;
+           
+        }*/
+        
+        </style>
+        
+    </head>
+    <body>
+       
+        <div id="wrapper" >
+            <div id='left'>
+                 <!--<div class='top'>
+                    <button onclick="nextPage()">next</button>
+                </div>-->
+            </div>
+            <div id='right'>
+                <div class="article" id="view">
+                    
+                </div>
+            </div>
+        </div>
+        
+         <script>   
+         //   "use strict";
+            var p = console;
+            var el = document.getElementById("epub");
+            var book = new Epub("books/moby-dick", {
+              element: el,
+              width: 400,
+              height: 600,
+              spreads : false
+            });
+            
+            // book.init().then(function(){
+            //     var left = document.getElementById("left");
+            //     var view = document.getElementById("view");
+            //     book.render(view);
+            //     book.renderNav(left);
+                
+            //     //console.log(book.opf);
+            //     //console.log(book.toc);
+            // });
+            
+            function nextPage(){
+                book.nextPage();
+            }
+        </script>
+    </body>
+</html>

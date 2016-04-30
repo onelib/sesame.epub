@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Basic ePubJS Example</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <script src="src/lib/promise.min.js"></script>
+        
+        <!-- EPUBJS Renderer -->
+        <script src="src/lib/axios.min.js"></script>
+        <script src="src/lib/epubcfi.js"></script>
+        <script src="src/epub.js"></script>
+        <!--<script src="dist/epub.js"></script>-->
+        
+        <style type="text/css">
+            body { margin:0;}
+            #wrapper{
+                height:100vh;
+                width: 100vw;
+                background-color: gray;
+            }
+		    #left {
+                background: yellow;
+                float: left;
+                width: 360px; 
+                height:100vh;
+                overflow:auto;
+                overflow-x:hidden;
+            }
+            
+            #right {
+                background-color: mintcream;
+                overflow: auto; 
+                height:100vh;
+                /*overflow: hidden;*/
+                /*padding: 20px;*/
+                /*margin: 20px;*/
+            }
+            #view{
+                padding: 10px;
+                /*margin: 20px;*/
+                box-sizing: border-box;
+                
+                /*padding: 50px;*/
+                height: 100%;
+                background-color: gold;
+                /*border: solid 1px red;*/
+                /*margin: 1em;*/
+                
+                overflow: hidden;
+                width: 100%;
+                -webkit-columns: 2 ;
+                -moz-columns: 2 ;
+                    columns: 2 ;
+                    
+                -webkit-column-gap: 20px;
+                -moz-column-gap: 20px;
+                column-gap: 20px;
+                
+                -webkit-column-width: 200px;
+                -moz-column-width: 200px;
+                    column-width: 200px;
+            }   
+            
+        </style>
+        
+    </head>
+    <body>
+       
+        <div id="wrapper" >
+            <div id='left'>
+                 <div class='top'>
+                    <button onclick="nextPage()">next</button>
+                </div>
+                <div class='top'>
+                    <button onclick="backPage()">prev</button>
+                </div>
+                <div class='top'>
+                    <button onclick="scl()">scl</button>
+                </div>
+            </div>
+            <div id='right'>
+                <div id="view">
+                    ss
+                </div>
+            </div>
+        </div>
+        
+         <script>   
+            "use strict";
+            var p = console;
+            var el = document.getElementById("epub");
+            var book = new Epub("books/moby-dick", {
+              element: el,
+              width: 400,
+              height: 600,
+              spreads : false
+            });
+            
+            book.init().then(function(){
+                var left = document.getElementById("left");
+                var view = document.getElementById("view");
+                book.render(view);
+                book.renderNav(left);
+            });
+            
+            function nextPage(){
+                book.gotoPage('next'); 
+            }
+            function backPage(){
+                book.gotoPage('back');
+            }
+            function scl(){
+                book.scl();
+            }
+            
+            // https://github.com/IDPF/epub-revision/blob/master/src/samples/cfi/cfitest.xhtml
+        </script>
+    </body>
+</html>
