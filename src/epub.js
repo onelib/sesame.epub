@@ -19,7 +19,7 @@
 // 	} else {
 // 		this.document.defaultView.scrollTo(leftPos, 0);
 // 	}
-	
+	 
 // };
 // https://raw.githubusercontent.com/IDPF/epub-revision/master/src/samples/cfi/epubcfi.js
 //http://stackoverflow.com/questions/16792578/how-to-create-a-epub-annotation-with-save-option-within-the-epub
