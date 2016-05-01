@@ -8,13 +8,13 @@
         <meta name="viewport" content="width=device-width">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <script src="src/lib/promise.min.js"></script>
-        
+
         <!-- EPUBJS Renderer -->
         <script src="src/lib/axios.min.js"></script>
         <script src="src/lib/epubcfi.js"></script>
         <script src="src/epub.js"></script>
         <!--<script src="dist/epub.js"></script>-->
-        
+
         <style type="text/css">
             body { margin:0;}
             #wrapper{
@@ -25,15 +25,15 @@
 		    #left {
                 background: yellow;
                 float: left;
-                width: 360px; 
+                width: 360px;
                 height:100vh;
                 overflow:auto;
                 overflow-x:hidden;
             }
-            
+
             #right {
                 background-color: mintcream;
-                overflow: auto; 
+                overflow: auto;
                 height:100vh;
                 /*overflow: hidden;*/
                 /*padding: 20px;*/
@@ -43,33 +43,33 @@
                 padding: 10px;
                 /*margin: 20px;*/
                 box-sizing: border-box;
-                
+
                 /*padding: 50px;*/
                 height: 100%;
                 background-color: gold;
                 /*border: solid 1px red;*/
                 /*margin: 1em;*/
-                
+
                 overflow: hidden;
                 width: 100%;
                 -webkit-columns: 2 ;
                 -moz-columns: 2 ;
                     columns: 2 ;
-                    
+
                 -webkit-column-gap: 20px;
                 -moz-column-gap: 20px;
                 column-gap: 20px;
-                
+
                 -webkit-column-width: 200px;
                 -moz-column-width: 200px;
                     column-width: 200px;
-            }   
-            
+            }
+
         </style>
-        
+
     </head>
     <body>
-       
+
         <div id="wrapper" >
             <div id='left'>
                  <div class='top'>
@@ -88,8 +88,8 @@
                 </div>
             </div>
         </div>
-        
-         <script>   
+
+         <script>
             "use strict";
             var p = console;
             var el = document.getElementById("epub");
@@ -99,16 +99,24 @@
               height: 600,
               spreads : false
             });
-            
+
             book.init().then(function(){
                 var left = document.getElementById("left");
                 var view = document.getElementById("view");
                 book.render(view);
                 book.renderNav(left);
+
+                // back to cfi
+                var r = window.location.hash.match(/#epubcfi\((.*)\)$/);
+                if( r )
+                {
+                    var cfi = decodeURI(r[1]);
+                    book.gotoCfi(cfi);
+                }
             });
-            
+
             function nextPage(){
-                book.gotoPage('next'); 
+                book.gotoPage('next');
             }
             function backPage(){
                 book.gotoPage('back');
@@ -116,7 +124,7 @@
             function scl(){
                 book.scl();
             }
-            
+
             // https://github.com/IDPF/epub-revision/blob/master/src/samples/cfi/cfitest.xhtml
         </script>
     </body>

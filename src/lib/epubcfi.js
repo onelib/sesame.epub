@@ -2,29 +2,29 @@
  * Copyright (c) 2011, Adobe Systems Incorporated
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without 
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * ·        Redistributions of source code must retain the above copyright 
- *          notice, this list of conditions and the following disclaimer. 
+ * ·        Redistributions of source code must retain the above copyright
+ *          notice, this list of conditions and the following disclaimer.
  *
- * ·        Redistributions in binary form must reproduce the above copyright 
+ * ·        Redistributions in binary form must reproduce the above copyright
  *		   notice, this list of conditions and the following disclaimer in the
- *		   documentation and/or other materials provided with the distribution. 
+ *		   documentation and/or other materials provided with the distribution.
  *
- * ·        Neither the name of Adobe Systems Incorporated nor the names of its 
+ * ·        Neither the name of Adobe Systems Incorporated nor the names of its
  *		   contributors may be used to endorse or promote products derived from
- *		   this software without specific prior written permission. 
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ *		   this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
@@ -40,7 +40,7 @@ function log(error)
 function encodeCFI(doc, node, offset, tail)
 {
 	var cfi = tail || "";
-	
+
 	// handle offset
 	switch( node.nodeType )
 	{
@@ -100,8 +100,17 @@ function encodeCFI(doc, node, offset, tail)
 		if( node.id && node.id.match(/^[-a-zA-Z_0-9.\u007F-\uFFFF]+$/) )
 			index = index + "[" + node.id + "]";
 		cfi = "/" + index + cfi;
+		// nguyen update for div view content
+		// if (parent === doc){
+		// 	// view div remove header + body so last node index is 4 = body
+		// 	cfi = "/" + "4" + cfi;
+		// 	return cfi;
+		// }
+		// nguyen -e
 		node = parent;
 	}
+	// we stop at BODY_HOLDER_ID so +/4 for body tag in orgin html
+	// outside file manage by epub
 	return cfi;
 }
 
@@ -110,7 +119,7 @@ function decodeCFI(doc, cfi)
 	var node = doc;
 	var error;
 	var r;
-	
+
 	while(cfi.length > 0 || error)
 	{
 		if( (r = cfi.match(/^\/(\d+)(\[([-a-zA-Z_0-9.\u007F-\uFFFF]+)\])?/)) !== null )
@@ -160,10 +169,10 @@ function decodeCFI(doc, cfi)
 			break;
 		}
 	}
-	
+
 	var offset = null;
 	var point = {};
-	
+
 	if( (r = cfi.match(/^:(\d+)/)) !== null )
 	{
 		offset = r[1] - 0;
@@ -188,7 +197,7 @@ function decodeCFI(doc, cfi)
 			cfi = cfi.substr(1);
 		}
 	}
-	
+
 	// find correct text node
 	if( offset !== null )
 	{
@@ -224,7 +233,7 @@ function decodeCFI(doc, cfi)
 		}
 		point.offset = offset;
 	}
-	
+
 	point.node = node;
 	if( error )
 		point.error = error;
@@ -232,7 +241,7 @@ function decodeCFI(doc, cfi)
 		point.error = "Undecoded: " + cfi;
 
 	log(point.error);
-	
+
 	return point;
 }
 
@@ -261,52 +270,40 @@ function fstr(d)
 function cfiAt(doc, e)//x, y)
 {
 	var target;
-	var cdoc = doc;
+	var cdoc = document;
 	var cwin = cdoc.defaultView;
 	var tail = "";
 	var offset = null;
 	var name;
-	
-	target=e.target;  //ng
-	console.log(target); // ng
-	// nguyen -s
-	// if( !target )
-	// {
-	// 	log("no element at point" );
-	// 	return null;
-	// }
-	
-	// name = target.localName;
+
 	var x = e.x;
 	var y = e.y;
+
 	while( true )
 	{
-		//target = cdoc.elementFromPoint(x, y);
-		target=e.target;  //ng
-        console.log(target); // ng
-        
+		target = cdoc.elementFromPoint(x, y);
+
 		if( !target )
 		{
 			log("no element at point" );
 			return null;
 		}
-		
+
 		name = target.localName;
 		if( name != "iframe" && name != "object" && name != "embed" )
 			break;
-		
+
 		// drill into object
 		var cd = target.contentDocument;
 		if( !cd )
 			break;
-		
+
 		x = x + cwin.scrollX - target.offsetLeft;
 		y = y + cwin.scrollY - target.offsetTop;
 		cdoc = cd;
 		cwin = cdoc.defaultView;
-		break; //ng
 	}
-	// nguyen -e
+
 	if( name == "video" || name == "audio" )
 	{
 		tail = "~" + fstr(target.currentTime);
@@ -329,7 +326,7 @@ function cfiAt(doc, e)//x, y)
 			}
 		}
 	}
-	return encodeCFI(doc, target, offset, tail);	
+	return encodeCFI(doc, target, offset, tail);
 }
 
 function pointFromCFI(doc, cfi)
@@ -341,7 +338,7 @@ function pointFromCFI(doc, cfi)
 	var ndoc = node.ownerDocument;
 	if( !ndoc )
 	{
-		log("document" );		
+		log("document" );
 		return null;
 	}
 	var nwin = ndoc.defaultView;
@@ -412,7 +409,7 @@ function setCurrentTime(node, time)
     else
     {
         node.addEventListener( "canplay", function() {
-            node.currentTime = time;        
+            node.currentTime = time;
         }, false );
     }
 }
@@ -429,7 +426,7 @@ function showCFI(dontSeek)
             ms.top = (pos.y - 30) + window.scrollY + "px";
             ms.left = (pos.x - 1) + window.scrollX + "px";
             if( !dontSeek )
-            {   
+            {
                 if( typeof pos.time == "number" )
                     setCurrentTime(pos.node, pos.time);
                 scrollTo(0, pos.y - 30);
@@ -438,7 +435,7 @@ function showCFI(dontSeek)
     }
 }
 
-function markAndReload(evt, view)
+function markAndReload(view, evt)
 {
 	view = view || document;
 	window.cfi = cfiAt( view, evt);//.clientX, evt.clientY );
@@ -452,7 +449,7 @@ function markAndReload(evt, view)
     //     }, 1000 );
     // }
 }
-														   
+
 function hookAndScroll()
 {
 	window.onscroll = showCFI;
