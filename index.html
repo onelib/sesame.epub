@@ -68,7 +68,7 @@
         </style>
 
     </head>
-    <body>
+    <body onunload="unload()">
 
         <div id="wrapper" >
             <div id='left'>
@@ -79,7 +79,10 @@
                     <button onclick="backPage()">prev</button>
                 </div>
                 <div class='top'>
-                    <button onclick="scl()">scl</button>
+                    <button onclick="testUnload()">testUnload</button>
+                </div>
+                <div class='top'>
+                    <button onclick="testReload()">testReload</button>
                 </div>
             </div>
             <div id='right'>
@@ -93,36 +96,38 @@
             "use strict";
             var p = console;
             var el = document.getElementById("epub");
+            var left = document.getElementById("left");
+            var view = document.getElementById("view");
             var book = new Epub("books/moby-dick", {
-              element: el,
-              width: 400,
-              height: 600,
-              spreads : false
+                view: view,
+                toc: left,
+                saveLastView: true,
             });
 
             book.init().then(function(){
-                var left = document.getElementById("left");
-                var view = document.getElementById("view");
-                book.render(view);
-                book.renderNav(left);
-
-                // back to cfi
-                var r = window.location.hash.match(/#epubcfi\((.*)\)$/);
-                if( r )
-                {
-                    var cfi = decodeURI(r[1]);
-                    book.gotoCfi(cfi);
-                }
+                // // back to cfi exanple
+                // var r = window.location.hash.match(/#epubcfi\((.*)\)$/);
+                // if(r)
+                // {
+                //     var cfi = decodeURI(r[1]);
+                //     book.gotoCfi(cfi);
+                // }
             });
 
+            function unload(){
+                book.onUnload();
+            }
             function nextPage(){
                 book.gotoPage('next');
             }
             function backPage(){
                 book.gotoPage('back');
             }
-            function scl(){
-                book.scl();
+            function testUnload(){
+                book.onUnload();
+            }
+            function testReload(){
+                book.gotoLastView();
             }
 
             // https://github.com/IDPF/epub-revision/blob/master/src/samples/cfi/cfitest.xhtml
