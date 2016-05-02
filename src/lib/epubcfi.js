@@ -100,17 +100,10 @@ function encodeCFI(doc, node, offset, tail)
 		if( node.id && node.id.match(/^[-a-zA-Z_0-9.\u007F-\uFFFF]+$/) )
 			index = index + "[" + node.id + "]";
 		cfi = "/" + index + cfi;
-		// nguyen update for div view content
-		// if (parent === doc){
-		// 	// view div remove header + body so last node index is 4 = body
-		// 	cfi = "/" + "4" + cfi;
-		// 	return cfi;
-		// }
-		// nguyen -e
 		node = parent;
 	}
-	// we stop at BODY_HOLDER_ID so +/4 for body tag in orgin html
-	// outside file manage by epub
+	// we stop at BODY_HOLDER_ID so +'/4' for body tag in orgin html
+	// outside file manage by epub nav
 	return cfi;
 }
 
@@ -119,9 +112,15 @@ function decodeCFI(doc, cfi)
 	var node = doc;
 	var error;
 	var r;
-
+	var breakwatch = 0;
 	while(cfi.length > 0 || error)
 	{
+		// some condition, never break out the loop !
+		if(breakwatch == 100){
+			break;
+		}
+		breakwatch ++;
+
 		if( (r = cfi.match(/^\/(\d+)(\[([-a-zA-Z_0-9.\u007F-\uFFFF]+)\])?/)) !== null )
 		{
 			var targetIndex = r[1] - 0;

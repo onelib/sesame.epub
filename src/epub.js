@@ -228,7 +228,8 @@ class Epub{
         this.path += '/';
         this.options = options;
         this.navDefaultHandle.bind(this);
-        this.nav = new Nav();
+        this.nav = new Nav(); // navigation
+        this.epub = {}; // some epub information
     }
 
     /**
@@ -249,6 +250,47 @@ class Epub{
              window.location.hash = 'epubcfi('+me.nav.toCFI() + cfi+')';
              //
         }
+    }
+
+    uid(){
+        if (!this.epub.uid){
+            var iden = this.opfAsJson()['package']['@attributes']['unique-identifier'];
+            var meta = this.opfAsJson()['package']['metadata'];
+            for(var k in meta){
+                var a;
+                if(a = meta[k]['@attributes']){
+                    if(a['id'] === iden){
+                        this.epub.uid = meta[k]['#text'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return this.epub.uid;
+    }
+
+    /**
+     * get first visible element in cfi
+     */
+    firstVisiableElm(){
+        var body = document.getElementById(BODY_HOLDER_ID);
+        var evt = {
+            x: body.offsetLeft,
+            y: body.offsetTop,
+        };
+
+        var posCfi = cfiAt(body, evt);
+        // console.log(cfiat);
+        console.log(this.epubCfi(posCfi));
+
+    }
+
+    /**
+     * epub cfi = navCfi + posCfi
+     */
+    epubCfi(posCfi){
+        return 'epubcfi('+this.nav.toCFI() + posCfi+')';
     }
 
     gotoCfi(cfi){
@@ -407,6 +449,8 @@ class Epub{
         // goto page
         //this.view.scrollLeft = this.page.current*(w);
         this.view.scrollLeft = this.nav.page.current*(w);
+
+        this.firstVisiableElm();
     }
 
 
@@ -544,6 +588,7 @@ class Epub{
                 let xml = parse(resp.data);
                 me.opf = xml;
                 me.nav.setOpf(me.opfAsJson());
+                me.uid();
                 // 2nd get toc
                 var tocpath = getTocPath(xml, me.spine);
                 // toc path relative with opfPath
