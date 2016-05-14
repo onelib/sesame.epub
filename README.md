@@ -1,6 +1,6 @@
 
 javascript for reading epub books
-
+version 0.0.1
 ## Installation
 
   git clone https://github.com/onelib/sesame.epub.git

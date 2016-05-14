@@ -7,11 +7,18 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <script src="src/lib/promise.min.js"></script>
+
 
         <!-- EPUBJS Renderer -->
         <script src="src/lib/axios.min.js"></script>
+        <!--<script src="src/lib/jszip.js"></script>
+        <script src="src/lib/jszip-utils.min.js"></script>-->
+        <!--<script src="src/lib/promise.min.js"></script>-->
+        <!--[if IE]>
+        <script type="text/javascript" src="src/lib/jszip-utils-ie.min.js"></script>
+        <![endif]-->
         <script src="src/lib/epubcfi.js"></script>
+        <script src="src/nav.js"></script>
         <script src="src/epub.js"></script>
         <!--<script src="dist/epub.js"></script>-->
 
@@ -98,10 +105,11 @@
             var el = document.getElementById("epub");
             var left = document.getElementById("left");
             var view = document.getElementById("view");
-            var book = new Epub("books/moby-dick", {
+            var book = new Epub("books/ca", {
                 view: view,
                 toc: left,
                 saveLastView: true,
+                folder: true, /** epub in forlder of .epub file */
             });
 
             book.init().then(function(){
