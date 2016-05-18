@@ -108,18 +108,18 @@
             var book = new Epub("books/ca", {
                 view: view,
                 toc: left,
-                saveLastView: true,
+                saveLastView: false,
                 folder: true, /** epub in forlder of .epub file */
             });
 
             book.init().then(function(){
                 // // back to cfi exanple
-                // var r = window.location.hash.match(/#epubcfi\((.*)\)$/);
-                // if(r)
-                // {
-                //     var cfi = decodeURI(r[1]);
-                //     book.gotoCfi(cfi);
-                // }
+                var r = window.location.hash.match(/#epubcfi\((.*)\)$/);
+                if(r)
+                {
+                    var cfi = decodeURI(r[1]);
+                    book.gotoCfi(cfi);
+                }
             });
 
             function unload(){

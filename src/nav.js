@@ -211,10 +211,6 @@ function Nav() {
                 break;
         }
 
-        // var navMap = this.navPoints();
-        // var navList = navMap['navPoint'];
-        // var len = navList.length;
-
         try {
             inorder = parseInt(inorder);
         } catch (error) {
@@ -234,7 +230,6 @@ function Nav() {
     this.gotoPage = function (page){
         switch (page) {
             case 'next':
-
                 if(this.page.current >= this.page.total){
                     return false;
                 }
@@ -258,7 +253,7 @@ function Nav() {
                 try{
                     page = parseInt(page);
                     if (page < 0 || page > this.page.total){
-                        return new Error('page out of range ' + page)
+                        return new Error('page out of range ' + page);
                     }
                     this.page.current = page;
                 }
@@ -277,34 +272,35 @@ function Nav() {
      */
     this.toCFI = function(){
 
-        /* toc.ncx => id */
-        var navList = this.navMap()['navPoint'];
-        var e = navList[this.chapterIndex];
-        var id = e['@attributes']['id'];// ['content']['@attributes']['src'];
+        // /* toc.ncx => id */
+        // var navList = this.navPoints();
+        // var currFile = this.spines[this.chapterIndex].src;
+        // var e = navList[this.chapterIndex];
+        // var id = e['@attributes']['id'];// ['content']['@attributes']['src'];
 
-        /* id => spine index */
-        var spine = this.opf.package.spine.itemref;
+        // /* id => spine index */
+        // var spine = this.opf.package.spine.itemref;
 
-        var i = 0, found = false;
-        for(i = 0; i < spine.length; i++){
-            var s = spine[i];
-            if (s['@attributes']['idref'] === id){
-                found = true;
-                break;
-            }
-        }
+        // var i = 0, found = false;
+        // for(i = 0; i < spine.length; i++){
+        //     var s = spine[i];
+        //     if (s['@attributes']['idref'] === id){
+        //         found = true;
+        //         break;
+        //     }
+        // }
 
-        if (!found){
-            // some epub reply with playorder
-            i = e['@attributes']['playOrder'] - 1; //? playorder start with 1 but  spine start 0
-            //throw new Error('spince not found for chapter')
-        }
+        // if (!found){
+        //     // some epub reply with playorder
+        //     i = e['@attributes']['playOrder'] - 1; //? playorder start with 1 but  spine start 0
+        //     //throw new Error('spince not found for chapter')
+        // }
         /**
          * /6 = spine
          * /(i+1)*2 = index of spine item
          * !/4 = body tag of document
          */
-        return '/6/'+(i+1)*2 +'!/4';
+        return '/6/'+(this.chapterIndex+1)*2 +'!/4';
     }
 
     this.cfiToChapter = function(cfi){
@@ -313,37 +309,38 @@ function Nav() {
         var r = cfi.match(/^\/6\/(\d+)(\[([-a-zA-Z_0-9.\u007F-\uFFFF]+)\])?/);
         var targetIndex = r[1] - 0;
         var index = (targetIndex/2) - 1; // position on spine
+        return this.gotoIndex(index);
+        //var src = this.spines
+        // var spineList = this.opf.package.spine.itemref;
+        // if(!spineList[index]){
+        //     // remove last view
+        //     throw Error("index out of range: " + index);
+        // }
+        // var idref = spineList[index]['@attributes']['idref'];
 
-        var spineList = this.opf.package.spine.itemref;
-        if(!spineList[index]){
-            // remove last view
-            throw Error("index out of range: " + index);
-        }
-        var idref = spineList[index]['@attributes']['idref'];
+        // // step 2. find idref in toc
+        // var i = 0, found = false;
+        // // epub 2
+        // if (!spineList[index]['@attributes']['linear'] ||
+        //      spineList[index]['@attributes']['linear'] !== 'yes'){
 
-        // step 2. find idref in toc
-        var i = 0, found = false;
-        // epub 2
-        if (!spineList[index]['@attributes']['linear'] ||
-             spineList[index]['@attributes']['linear'] !== 'yes'){
-
-             i = index;
-             found = true;
-        }
-        else{
-            var navList = this.getNavMap()['navPoint'];
-            for(i = 0; i < navList.length; i++){
-                var item = navList[i];
-                if (item['@attributes']['id'] === idref){
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (!found){
-            throw new Error('idref not found ' + idref);
-        }
-        return this.gotoChapter(i);
+        //      i = index;
+        //      found = true;
+        // }
+        // else{
+        //     var navList = this.getNavMap()['navPoint'];
+        //     for(i = 0; i < navList.length; i++){
+        //         var item = navList[i];
+        //         if (item['@attributes']['id'] === idref){
+        //             found = true;
+        //             break;
+        //         }
+        //     }
+        // }
+        // if (!found){
+        //     throw new Error('idref not found ' + idref);
+        // }
+        //return this.gotoChapter(i);
     }
 
 

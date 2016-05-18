@@ -117,6 +117,7 @@ class Epub{
                 me.gotoElm(point.node);
             }
         }
+        ///var src = this.nav.cfiToChapter(cfi);
         var src = this.nav.cfiToChapter(cfi);
         return this.readHtml(src).then(toCfiPos);
     }
@@ -150,6 +151,7 @@ class Epub{
     getFile(path){
         return path.split('#');
     }
+
     myRenderToc(elm){
         let navMap = this.nav.navPoints();
         let me = this;
@@ -166,22 +168,43 @@ class Epub{
                 a.setAttribute('src', e['content']['@attributes']['src']);
                 a.setAttribute('id', e['@attributes']['id']);
                 a.onclick = function(e){
+
+                    function goElm(hash){
+                        var b = document.getElementById(BODY_HOLDER_ID);
+                        var seekElm = b.querySelector("[id='"+hash+"']") ||
+                                        b.querySelector('[name="'+hash+']"');
+                        if(seekElm){
+                            me.gotoElm(seekElm);
+                        }
+                    }
                     var path = this.getAttribute('src');
                     path = path.split('#');
 
+
                     var next = me.nav.setIndexFromSource(path[0]);
-                    if (next == true)
-                        me.readHtml(path[0]);
+                    if (next == true){
+                        me.readHtml(path[0]).then(function(){
+                            // seek to element
+                            if (path.length > 1){
+                                goElm(path[1]);
+                            }
+                        })
+                    }
                     else{
                         if (path.length > 1){
-                            // seek to href
-                            window.location.hash = '#'+path[1];
+                            goElm(path[1]);
+                            // var b = document.getElementById(BODY_HOLDER_ID);
+                            // var seekElm = b.querySelector("[id='"+path[1]+"']") ||
+                            //               b.querySelector('[name="'+path[1]+']"');
+                            // if(seekElm){
+                            //     me.gotoElm(seekElm);
+                            // }
                         }
                         else{
-                            throw Error('Source not found ' + this.getAttribute('src'));
+                            // goto first page
+                            me.gotoPage(0);
                         }
                     }
-                        ;
                 }
                 li.appendChild(a);
                 ul.appendChild(li);
@@ -197,13 +220,6 @@ class Epub{
         elm.appendChild(toc);
         return this;
     }
-
-    // gotoFile(elm){
-
-    //     return this.readHtml(elm.getAttribute('src'));
-    //     //this.gotoContentSource(elm.getAttribute('src'));
-    //     ////this.showChapterByIndex(elm.getAttribute('index'));
-    // }
 
     calcPages(){
         var scrollWidth = this.view.scrollWidth,
@@ -260,26 +276,47 @@ class Epub{
         // goto page
         //this.view.scrollLeft = this.page.current*(w);
         this.view.scrollLeft = this.nav.page.current*(w);
-
     }
 
     gotoElm(elm) {
         if(!elm)
             return;
         var rect = elm.getBoundingClientRect ? elm.getBoundingClientRect():elm.parentElement.getBoundingClientRect();
-        var w = this.view.offsetWidth;
-        var page = 0;
-        var left= 0;
 
-        while (page <= this.nav.page.total) {
-            // elm.left > view.left && elm.left < view.left + this.view.offsetWidth;
-            if (rect.left > left && rect.left < left + w){
-                this.gotoPage(page)
-                break;
-            }
-            page ++;
-            left = page*w;
+        // var page = 0;
+        // var left= 0;
+        // var curr = this.nav.page.current;
+        //     -w   0  +w
+        // +--+--+--+--+
+        // |  |  |  |  |
+        // +--+--+--+--+
+
+        // prev
+        if (rect.left < 0){
+            var w = (-1) * this.view.offsetWidth;
+            //if (rect.left >= w) return;
+            var page = Math.ceil(rect.left/w);
+            var toPage = this.nav.page.current-page;
+            if (toPage < 0) toPage = 0;
+            this.gotoPage(toPage);
         }
+        else{ // forward
+            var w = this.view.offsetWidth;
+            if (rect.left <= w) return;
+            var page = Math.ceil(rect.left/w);
+            var toPage = (this.nav.page.current+page)-1;
+            if (toPage > this.nav.page.total) toPage = this.nav.page.total;
+            this.gotoPage(toPage);
+        }
+        // while (page <= this.nav.page.total) {
+        //     // elm.left > view.left && elm.left < view.left + this.view.offsetWidth;
+        //     if (rect.left >= left && rect.left < left + w){
+        //         this.gotoPage(page);
+        //         break;
+        //     }
+        //     page ++;
+        //     left = page*w;
+        // }
     }
 
 
@@ -295,8 +332,6 @@ class Epub{
         //this.nav.pagePreCif();
         return this.readHtml(src);
     }
-
-
 
     _processContent(content) {
         let contentDom = parse(content);
@@ -344,7 +379,9 @@ class Epub{
     /**
      * get from http or zip file
      */
-    get(path, bookPath=true){
+    get(path, bookPath){
+        if (bookPath !== false)
+            bookPath = true;
         // remove some hash  # of path
         var hash = path.indexOf('#');
         if (hash !== -1){
@@ -362,6 +399,9 @@ class Epub{
         return this.zip.file(fpath).async('string') ;
     }
 
+    /**
+     * .epub file package in zip format
+     */
     initZip(path){
         var me = this;
         return http.get(path, {responseType: "arraybuffer"})
@@ -383,7 +423,6 @@ class Epub{
 
 
     init(){
-
         let me = this;
 
         function getTocPath(xml) {
