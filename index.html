@@ -20,7 +20,7 @@
         <script src="src/lib/epubcfi.js"></script>
         <script src="src/nav.js"></script>
         <script src="src/epub.js"></script>
-        <!--<script src="dist/epub.js"></script>-->
+        <!--<script src="dist/all.js"></script>-->
 
         <style type="text/css">
             body { margin:0;}
@@ -105,7 +105,8 @@
             var el = document.getElementById("epub");
             var left = document.getElementById("left");
             var view = document.getElementById("view");
-            var book = new Epub("books/ca", {
+            var http = axios;
+            var book = new Epub("books/ca", http, {
                 view: view,
                 toc: left,
                 saveLastView: false,

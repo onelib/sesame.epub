@@ -4,7 +4,7 @@
 //http://matt.garrish.ca/2013/03/navigating-cfis-part-1/
 'use strict'
 var BODY_HOLDER_ID = '__epub_body__';
-var http = axios;
+
 
 
 class Epub{
@@ -15,19 +15,20 @@ class Epub{
      * container.xml -> package.opf -> toc.ncx
      *                   index files   index
      */
-    constructor(path, options) {
+    constructor(path, http, options) {
         var optDefault = {
             view: null,
             toc: null,
             saveLastView: true,
             folder: true, /** epub in forlder of .epub file */
         }
+        window.$http = http;
         options = options||optDefault;
 
         this.path = path;
 
         this.options = options;
-        if (this.options.folder)
+        if (this.options.folder && this.path[this.path.length-1] !== '/')
             this.path += '/';
         this.myRenderToc.bind(this);
         this.nav = new Nav(); // navigation
@@ -339,13 +340,16 @@ class Epub{
         for(let i=0; i < css.length;  i++){
             let e = css[i];
             var href = e.getAttribute('href').replace("..","");
-            e.setAttribute('href', this.bookPath + href);
+            href = this.bookPath + href
+            e.setAttribute('href', href.replace("//","/"));
         }
         var img = contentDom.querySelectorAll('img');
         for(let i=0; i < img.length;  i++){
             let e = img[i];
             let src = e.getAttribute('src').replace("..","");
-            e.setAttribute('src', this.bookPath + src);
+            src = this.bookPath + src;
+
+            e.setAttribute('src', src.replace("//","/"));
         }
         // html file display on div : all head + body will remove
         // we create wrapper to handle body element
@@ -380,6 +384,9 @@ class Epub{
      * get from http or zip file
      */
     get(path, bookPath){
+        // if (!window.$http)
+        //     window.$http = axios;
+
         if (bookPath !== false)
             bookPath = true;
         // remove some hash  # of path
@@ -391,7 +398,7 @@ class Epub{
         var fpath = bookPath ? this.bookPath + path: path
 
         if(this.options.folder){
-            return http.get(fpath).then(function(resp){
+            return $http.get(fpath).then(function(resp){
                 return resp.data;
             });
         }
@@ -404,7 +411,7 @@ class Epub{
      */
     initZip(path){
         var me = this;
-        return http.get(path, {responseType: "arraybuffer"})
+        return $http.get(path, {responseType: "arraybuffer"})
             .then(function(resp, err){
             var zip = new JSZip();
             return zip.loadAsync(resp.data)
@@ -448,12 +455,15 @@ class Epub{
         function parseContainer(resp){
             var xml = parse(resp);
             console.log(xml.documentElement.nodeName);
+            if(!xml.getElementsByTagName('rootfile')[0]){
+                throw new Error("rootfile not found");
+            }
             var opfPath = xml.getElementsByTagName('rootfile')[0].getAttribute("full-path");
             // opf path is root, all others related to this path
             // path poiter to opf folder
             if (me.options.folder){
                 me.bookPath = me.path + opfPath.substr(0, opfPath.lastIndexOf('/')) + '/';
-                opfPath = me.path+'/'+opfPath;
+                opfPath = me.path + opfPath;
             }
             else
                 me.bookPath = opfPath.substr(0, opfPath.lastIndexOf('/')) + '/';
