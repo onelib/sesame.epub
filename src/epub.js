@@ -23,10 +23,12 @@ class Epub{
             folder: true, /** epub in forlder of .epub file */
         }
         window.$http = http;
-        options = options||optDefault;
-
+        for(var k in optDefault){
+            if(!options[k]){
+                options[k] = optDefault[k];
+            }
+        }
         this.path = path;
-
         this.options = options;
         if (this.options.folder && this.path[this.path.length-1] !== '/')
             this.path += '/';
@@ -169,7 +171,6 @@ class Epub{
                 a.setAttribute('src', e['content']['@attributes']['src']);
                 a.setAttribute('id', e['@attributes']['id']);
                 a.onclick = function(e){
-
                     function goElm(hash){
                         var b = document.getElementById(BODY_HOLDER_ID);
                         var seekElm = b.querySelector("[id='"+hash+"']") ||
@@ -180,7 +181,6 @@ class Epub{
                     }
                     var path = this.getAttribute('src');
                     path = path.split('#');
-
 
                     var next = me.nav.setIndexFromSource(path[0]);
                     if (next == true){
@@ -194,12 +194,6 @@ class Epub{
                     else{
                         if (path.length > 1){
                             goElm(path[1]);
-                            // var b = document.getElementById(BODY_HOLDER_ID);
-                            // var seekElm = b.querySelector("[id='"+path[1]+"']") ||
-                            //               b.querySelector('[name="'+path[1]+']"');
-                            // if(seekElm){
-                            //     me.gotoElm(seekElm);
-                            // }
                         }
                         else{
                             // goto first page
@@ -462,11 +456,17 @@ class Epub{
             // opf path is root, all others related to this path
             // path poiter to opf folder
             if (me.options.folder){
-                me.bookPath = me.path + opfPath.substr(0, opfPath.lastIndexOf('/')) + '/';
+                var sub = opfPath.substr(0, opfPath.lastIndexOf('/'));
+
+                me.bookPath = me.path + sub
+                if(sub.length > 0) me.bookPath += '/';
                 opfPath = me.path + opfPath;
             }
-            else
-                me.bookPath = opfPath.substr(0, opfPath.lastIndexOf('/')) + '/';
+            else{
+                var sub = opfPath.substr(0, opfPath.lastIndexOf('/'));
+                me.bookPath = opfPath.substr(0, opfPath.lastIndexOf('/'));
+                if(sub.length > 0) me.bookPath += '/';
+            }
 
             //return http.get( me.path+'/'+opfPath).then(function (resp) {
             return me.get(opfPath, false).then(function (resp) {
@@ -477,10 +477,6 @@ class Epub{
 
                 // 2nd get toc
                 var tocpath = getTocPath(xml, me.spine);
-                // toc path relative with opfPath
-                // ng
-                //tocpath = opfPath.substr(0, opfPath.lastIndexOf('/')) + '/' + tocpath;
-                //return http.get(me.path+'/'+tocpath).then(function (resp) {
                 return me.get(tocpath).then(function (resp) {
                     //me.toc = parse(resp);
                     me.nav.setToc(parse(resp));
@@ -495,12 +491,11 @@ class Epub{
 
         /**now show to view */
         function showTime(){
-            me.renderView(view);
-            me.renderToc(left);
+            me.renderView(me.options.view);
+            me.renderToc(me.options.toc);
             return me;
         }
 
-        // let containerPath = this.path + '/META-INF/container.xml';
         let containerPath = 'META-INF/container.xml';
         if(this.options.folder){
              return this.get(this.path + containerPath, false)
@@ -527,7 +522,7 @@ class Epub{
                 var r = epubcfi.match(/^epubcfi\((.*)\)$/);
                 if( r ){
                     var cfi = decodeURI(r[1]);
-                    book.gotoCfi(cfi);
+                    me.gotoCfi(cfi);
                 }
             }
         }

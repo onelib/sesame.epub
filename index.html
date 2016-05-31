@@ -29,7 +29,7 @@
                 width: 100vw;
                 background-color: gray;
             }
-		    #left {
+		    #lefte {
                 background: yellow;
                 float: left;
                 width: 360px;
@@ -46,13 +46,13 @@
                 /*padding: 20px;*/
                 /*margin: 20px;*/
             }
-            #view{
+            #viewe{
                 padding: 10px;
                 /*margin: 20px;*/
                 box-sizing: border-box;
 
                 /*padding: 50px;*/
-                height: 100%;
+                /*height: 100%;*/
                 background-color: gold;
                 /*border: solid 1px red;*/
                 /*margin: 1em;*/
@@ -78,7 +78,7 @@
     <body onunload="unload()">
 
         <div id="wrapper" >
-            <div id='left'>
+            <div id='lefte'>
                  <div class='top'>
                     <button onclick="nextPage()">next</button>
                 </div>
@@ -93,7 +93,7 @@
                 </div>
             </div>
             <div id='right'>
-                <div id="view">
+                <div id="viewe">
                     ss
                 </div>
             </div>
@@ -103,12 +103,12 @@
             "use strict";
             var p = console;
             var el = document.getElementById("epub");
-            var left = document.getElementById("left");
-            var view = document.getElementById("view");
+            var lefte = document.getElementById("lefte");
+            var viewe = document.getElementById("viewe");
             var http = axios;
             var book = new Epub("books/ca", http, {
-                view: view,
-                toc: left,
+                view: viewe,
+                toc: lefte,
                 saveLastView: false,
                 folder: true, /** epub in forlder of .epub file */
             });
