@@ -21,3 +21,5 @@ version 0.0.1
 
 
   `>http-server`
+## Build
+  `> gulp` output to `/dist` folder

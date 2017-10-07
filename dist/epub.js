@@ -379,7 +379,7 @@ function hookAndScroll() {
 }
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function parse(xml) {
     if (window.DOMParser) {
@@ -762,7 +762,6 @@ var Epub = function () {
      * container.xml -> package.opf -> toc.ncx
      *                   index files   index
      */
-
     function Epub(path, http, options) {
         _classCallCheck(this, Epub);
 
@@ -771,7 +770,6 @@ var Epub = function () {
             toc: null,
             saveLastView: true,
             folder: true };
-        /** epub in forlder of .epub file */
         window.$http = http;
         for (var k in optDefault) {
             if (!options[k]) {
