@@ -772,7 +772,7 @@ var Epub = function () {
             folder: true };
         window.$http = http;
         for (var k in optDefault) {
-            if (!options[k]) {
+            if (options[k] === undefined) {
                 options[k] = optDefault[k];
             }
         }
@@ -798,7 +798,7 @@ var Epub = function () {
             this.view.onclick = function (evt) {
                 var body = document.getElementById(BODY_HOLDER_ID);
                 var cfi = cfiAt(body, evt);
-                window.location.hash = 'epubcfi(' + me.nav.toCFI() + cfi + ')';
+                window.location.hash = encodeURI('epubcfi(' + me.nav.toCFI() + cfi + ')');
                 //
             };
         }
@@ -1109,6 +1109,14 @@ var Epub = function () {
                 src = this.bookPath + src;
 
                 _e.setAttribute('src', src.replace("//", "/"));
+            }
+            img = contentDom.querySelectorAll('image');
+            for (var _i2 = 0; _i2 < img.length; _i2++) {
+                var _e2 = img[_i2];
+                var _src = _e2.getAttribute('xlink:href').replace("..", "");
+                _src = this.bookPath + _src;
+
+                _e2.setAttribute('xlink:href', _src.replace("//", "/"));
             }
             // html file display on div : all head + body will remove
             // we create wrapper to handle body element
